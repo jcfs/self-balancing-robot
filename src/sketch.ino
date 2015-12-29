@@ -134,9 +134,10 @@ void setMotorDirection(int pin, int motorSpeed) {
 
 uint16_t motor_1_speed;
 uint16_t motor_2_speed;
+uint16_t counter_motor;
 
 void callback() {
-  int counter_motor++;
+  counter_motor++;
 
   int speed = abs(1000 / motor_1_speed);
 
