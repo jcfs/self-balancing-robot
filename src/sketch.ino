@@ -16,15 +16,7 @@
 #define MOTOR_2_DIR 13
 
 #define MAX_SPEED 7
-
-#define ITERM_MAX_ERROR 40   // Iterm windup constants
-#define ITERM_MAX 5000
 #define MAX_ACCEL 7
-
-#define KP_THROTTLE 0.065  //0.08
-#define KI_THROTTLE 0.05
-#define KP 0.20 // 0.22        
-#define KD 26   // 30 28  
 
 #define ZERO_SPEED 65535
 #define MAX_TARGET_ANGLE 12
@@ -98,7 +90,7 @@ void setup_mpu(){
   mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
   mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
   mpu.setDLPFMode(MPU6050_DLPF_BW_20);  //10,20,42,98,188
-  mpu.setRate(4);   // 0=1khz 1=500hz, 2=333hz, 3=250hz 4=200hz
+  mpu.setRate(9);   // 0=1khz 1=500hz, 2=333hz, 3=250hz 4=200hz
   mpu.setSleepEnabled(false);
   uint8_t devStatus = mpu.dmpInitialize();
 
@@ -168,6 +160,7 @@ void setup() {
   pinMode(inPin, INPUT);
   pinMode(outPin, OUTPUT);
 
+  powerOn();
 }
 
 void powerOn() {
@@ -186,44 +179,41 @@ void powerOn() {
 void loop() {
   float angle_adjusted;
 
-  switchHandle();
 
-  if (state == HIGH) {
-    fifoCount =  mpu.getFIFOCount();
-    if (fifoCount >= 18) {
-      double angle_adjusted_old = angle_adjusted;
-      angle_adjusted = dmpGetPhi();
-      if (angle_adjusted > -40 && angle_adjusted < 40) {
-        // for now our target speed is zero
-        pid_setpoint_speed = 0;
-        // we need to predict our current speed for the inputs we have
-        int angular_velocity = (angle_adjusted - angle_adjusted_old) * 90;
-        pid_input_speed = (motor_1_speed + motor_2_speed) / 2 - (pid_input_speed-angular_velocity);
+  fifoCount =  mpu.getFIFOCount();
+  if (fifoCount >= 18) {
+    double angle_adjusted_old = angle_adjusted;
+    angle_adjusted = dmpGetPhi();
+    if (angle_adjusted > -40 && angle_adjusted < 40) {
+      // for now our target speed is zero
+      pid_setpoint_speed = 0;
+      // we need to predict our current speed for the inputs we have
+      int angular_velocity = (angle_adjusted - angle_adjusted_old) * 90;
+      pid_input_speed = (motor_1_speed + motor_2_speed) / 2 - (pid_input_speed-angular_velocity);
 
-        pid_controller_angle.Compute();
+      pid_controller_angle.Compute();
 
 #if DEBUG
-        Serial.print(pid_input_angle);
-        Serial.print(" : ");
-        Serial.print(pid_setpoint_angle);
-        Serial.print(" : ");
-        Serial.println(pid_output_angle);  
+      Serial.print(angle_adjusted);
+      Serial.print(" : ");
+      Serial.print(pid_setpoint_angle);
+      Serial.print(" : ");
+      Serial.println(pid_output_angle);  
 #endif
 
-        // PID given the target angle and the current angle
-        // outputs the target speed
-        pid_setpoint_angle = pid_output_angle;
-        pid_input_angle = angle_adjusted;
-        pid_controller_speed.Compute();
+      // PID given the target angle and the current angle
+      // outputs the target speed
+      pid_setpoint_angle = pid_output_angle;
+      pid_input_angle = angle_adjusted;
+      pid_controller_speed.Compute();
 
-        // motors 2 is reversed
-        motor_1_speed = pid_output_speed;
-        motor_2_speed = -pid_output_speed;
+      // motors 2 is reversed
+      motor_1_speed = pid_output_speed;
+      motor_2_speed = -pid_output_speed;
 
-        setMotorDirection(MOTOR_1_DIR, motor_1_speed);
-        setMotorDirection(MOTOR_2_DIR, motor_2_speed);
+      setMotorDirection(MOTOR_1_DIR, motor_1_speed);
+      setMotorDirection(MOTOR_2_DIR, motor_2_speed);
 
-      }
     }
   }
 }
