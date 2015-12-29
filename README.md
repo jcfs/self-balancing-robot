@@ -1,6 +1,6 @@
 Self Balancing Robot Arduino sketch
 
-Sketch for a self balancing arduino robot using an [MPU6050](http://www.dx.com/p/gy-521-mpu6050-3-axis-acceleration-gyroscope-6dof-module-blue-154602?Utm_rid=60225380&Utm_source=affiliate), NEMA 17 motors and two A4988 drivers.
+Sketch for a self balancing arduino robot using an [MPU6050](http://www.dx.com/p/gy-521-mpu6050-3-axis-acceleration-gyroscope-6dof-module-blue-154602?Utm_rid=60225380&Utm_source=affiliate), [NEMA 17 motors](http://www.dx.com/pt/p/geeetech-1-8-degree-nema-14-35-byghw-stepper-motor-for-3d-printer-black-386069?Utm_rid=60225380&Utm_source=affiliate) and two [A4988](http://www.dx.com/pt/p/3d-printer-a4988-arduino-reprap-stepper-motor-driver-265980?Utm_rid=60225380&Utm_source=affiliate) drivers.
 
 - Problems:
   - MPU6050 stop working as soon as motors are switch one.
