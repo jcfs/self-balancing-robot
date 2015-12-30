@@ -48,39 +48,6 @@ float dmpGetPhi() {
   return result;
 
 }
-// ================================================================
-// ===                      SWITCH                              ===
-// ================================================================
-
-int inPin = 9;         // the number of the input pin
-int outPin = 10;       // the number of the output pin
-
-int state = LOW;      // the current state of the output pin
-int reading;           // the current reading from the input pin
-int previous = LOW;    // the previous reading from the input pin
-
-long time = 0;         // the last time the output pin was toggled
-long debounce = 200;   // the debounce time, increase if the output flickers
-
-void switchHandle()
-{
-  reading = digitalRead(inPin);
-  if (reading == HIGH && previous == LOW && millis() - time > debounce) {
-    if (state == HIGH) {
-      state = LOW;
-      Serial.println("Switch Off!");
-      digitalWrite(outPin, state);
-    } else {
-      state = HIGH;
-      digitalWrite(outPin, state);
-      Serial.println("Switch On!");
-      powerOn();
-    }
-
-    time = millis();    
-  }
-  previous = reading;
-}
 
 // ================================================================
 // ===                      MPU SETUP                           ===

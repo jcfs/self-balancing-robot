@@ -8,6 +8,10 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
   * GND/VCC shared with the rest of the circuit - perhaps change GND to second arduino gnd.
   * SDA/SCL to A4/A5 respectivly
 
+### Wiring NEMA 17
+  Nema 17 4 wires scheme:
+    ![nema 17 wire](http://www.linengineering.com/_images/Wiring_4_lead_Wires.png)
+
 ### Wiring A4988 with NEMA 17 bipolar motors (4 wires)
   Both motors are wired to their own A4988
   * VMOT/GND external power supply - GND can be shared with the rest of the circuit;
@@ -18,6 +22,8 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
   * GND/VDD to shared with the rest of the circuit logic power supply;
   * MS1 to MS3 all to HIGH for more precision;
   * STEP and DIR - the input PINs assigned to the step and dir functions.
+
+  ![A4988](http://a.pololu-files.com/picture/0J3360.1200.png)
 
 ## Problems
   * MPU6050 stops working as soon as motors are switch on;
