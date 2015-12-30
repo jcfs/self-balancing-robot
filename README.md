@@ -11,7 +11,7 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
 ### Wiring NEMA 17
   Nema 17 4 wires scheme:
 
-   ->![nema 17 wire](http://www.linengineering.com/_images/Wiring_4_lead_Wires.png)<-
+   ![nema 17 wire](http://www.linengineering.com/_images/Wiring_4_lead_Wires.png)
 
 ### Wiring A4988 with NEMA 17 bipolar motors (4 wires)
   Both motors are wired to their own A4988
@@ -24,7 +24,7 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
   * MS1 to MS3 all to HIGH for more precision;
   * STEP and DIR - the input PINs assigned to the step and dir functions.
 
-  ->![A4988](http://a.pololu-files.com/picture/0J3360.1200.png)<-
+  ![A4988](http://a.pololu-files.com/picture/0J3360.1200.png)
 
 ## Problems
   * MPU6050 stops working as soon as motors are switch on;
