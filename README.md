@@ -1,6 +1,6 @@
 # Self Balancing Robot Arduino sketch
 
-Sketch for a self balancing arduino robot using an [MPU6050](http://www.dx.com/p/gy-521-mpu6050-3-axis-acceleration-gyroscope-6dof-module-blue-154602?Utm_rid=60225380&Utm_source=affiliate), [NEMA 17 motors](http://www.dx.com/pt/p/geeetech-1-8-degree-nema-14-35-byghw-stepper-motor-for-3d-printer-black-386069?Utm_rid=60225380&Utm_source=affiliate) and two [A4988](http://www.dx.com/pt/p/3d-printer-a4988-arduino-reprap-stepper-motor-driver-265980?Utm_rid=60225380&Utm_source=affiliate) drivers.
+Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.com/pt/p/uno-r3-atmega328p-development-board-for-arduino-402904?Utm_rid=60225380&Utm_source=affiliate), a [MPU6050](http://www.dx.com/p/gy-521-mpu6050-3-axis-acceleration-gyroscope-6dof-module-blue-154602?Utm_rid=60225380&Utm_source=affiliate), [NEMA 17 motors](http://www.dx.com/pt/p/geeetech-1-8-degree-nema-14-35-byghw-stepper-motor-for-3d-printer-black-386069?Utm_rid=60225380&Utm_source=affiliate) and two [A4988](http://www.dx.com/pt/p/3d-printer-a4988-arduino-reprap-stepper-motor-driver-265980?Utm_rid=60225380&Utm_source=affiliate) drivers.
 
 ## Wiring
 
@@ -9,6 +9,7 @@ Sketch for a self balancing arduino robot using an [MPU6050](http://www.dx.com/p
   * SDA/SCL to A4/A5 respectivly
 
 ### Wiring A4988 with NEMA 17 bipolar motors (4 wires)
+  Both motors are wired to their own A4988
   * VMOT/GND external power supply - GND can be shared with the rest of the circuit;
   * 2B - Black Wire;
   * 2A - Green Wire;
