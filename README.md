@@ -23,7 +23,6 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
   * GND/VDD to shared with the rest of the circuit logic power supply;
   * MS1 to MS3 all to HIGH for more precision;
   * STEP and DIR - the input PINs assigned to the step and dir functions.
-
   ![A4988](http://a.pololu-files.com/picture/0J3360.1200.png)
 
 ## Problems
