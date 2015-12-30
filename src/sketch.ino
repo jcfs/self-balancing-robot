@@ -124,9 +124,6 @@ void setup() {
   pinMode(MOTOR_2_STEP,OUTPUT);
   pinMode(MOTOR_1_DIR,OUTPUT);
 
-  pinMode(inPin, INPUT);
-  pinMode(outPin, OUTPUT);
-
   powerOn();
 }
 
