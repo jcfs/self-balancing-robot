@@ -16,16 +16,22 @@
 #define MOTOR_2_DIR 13
 
 #define MAX_SPEED 7
-#define MAX_ACCEL 7
-
-#define ZERO_SPEED 65535
 #define MAX_TARGET_ANGLE 12
 
-float max_target_angle = MAX_TARGET_ANGLE;
+// ================================================================
+// ===                        Globals                           ===
+// ================================================================
+uint16_t motor_1_speed;
+uint16_t motor_2_speed;
+uint16_t counter_motor;
 
-// ================================================================
-// ===                      MPU FUNCTIONS                       ===
-// ================================================================
+double pid_setpoint_angle, pid_input_angle, pid_output_angle;
+double pid_setpoint_speed, pid_input_speed, pid_output_speed;
+
+// pid to obtain the desired angle given the current speed and the target speed
+PID pid_controller_angle(&pid_input_speed, &pid_output_angle, &pid_setpoint_speed, 1, 0.1, 0.1, DIRECT);
+// pid to obtain the desired speed given the current angle and the desired angle
+PID pid_controller_speed(&pid_input_angle, &pid_output_speed, &pid_setpoint_angle, 2, 0.1, 0.1, DIRECT);
 
 MPU6050 mpu;
 
@@ -34,7 +40,9 @@ uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 uint16_t fifoCount;     // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64]; // FIFO storage buffer
 
-
+// ================================================================
+// ===                      MPU FUNCTIONS                       ===
+// ================================================================
 float dmpGetPhi() {
   VectorFloat gravity;
   Quaternion q;
@@ -79,23 +87,20 @@ void setup_mpu(){
   delay(20000);
   while(Serial.available()) Serial.read();
 }
+// ================================================================
+// ===                      Motors Functions                    ===
+// ================================================================
+void setMotorDirection(int pin, int motorSpeed) {
+  digitalWrite(pin, motorSpeed > 0 ? HIGH : LOW);
+}
 
-
-void motor_callback(int motor){
+void step(int motor){
   digitalWrite(motor, HIGH);
   delayMicroseconds(1);
   digitalWrite(motor, LOW);
 }
 
-void setMotorDirection(int pin, int motorSpeed) {
-  digitalWrite(pin, motorSpeed > 0 ? HIGH : LOW);
-}
-
-uint16_t motor_1_speed;
-uint16_t motor_2_speed;
-uint16_t counter_motor;
-
-void callback() {
+void step_motors() {
   counter_motor++;
 
   int speed = abs(1000 / motor_1_speed);
@@ -107,13 +112,7 @@ void callback() {
   }
 }
 
-
-double pid_setpoint_angle, pid_input_angle, pid_output_angle;
-double pid_setpoint_speed, pid_input_speed, pid_output_speed;
-
-PID pid_controller_angle(&pid_input_speed, &pid_output_angle, &pid_setpoint_speed, 1, 0.1, 0.1, DIRECT);
-PID pid_controller_speed(&pid_input_angle, &pid_output_speed, &pid_setpoint_angle, 2, 0.1, 0.1, DIRECT);
-
+// initialization functions
 void setup() {
   // init comms
   Wire.begin();
@@ -124,32 +123,37 @@ void setup() {
   pinMode(MOTOR_2_STEP,OUTPUT);
   pinMode(MOTOR_1_DIR,OUTPUT);
 
-  powerOn();
-}
-
-void powerOn() {
+  // setup MPU6050
   setup_mpu();
 
+  // Set timer one frequency and call back function for interruption
   Timer1.initialize(60); // 25Khz
-  Timer1.attachInterrupt(callback);
+  Timer1.attachInterrupt(step_motors);
 
   pid_controller_angle.SetMode(AUTOMATIC);
-  pid_controller_angle.SetOutputLimits(-max_target_angle, max_target_angle); 
+  pid_controller_angle.SetOutputLimits(-MAX_TARGET_ANLGE, MAX_TARGET_ANGLE); 
 
   pid_controller_speed.SetMode(AUTOMATIC);
   pid_controller_speed.SetOutputLimits(-MAX_SPEED, MAX_SPEED); 
 }
 
+// Main loop, for now it will work as follows:
+//  * Get the current angle from the MPU
+//  * Estimate the current speed
+//  * Feed the current speed to the angle PID to obtain the desired angle to get to the input speed (zero for now)
+//  * Feed the current angle to the speed PID to obtain the desired speed to ge to the desired angle (obtained before)
+//  * Adjust motor speeds accordingly
 void loop() {
   float angle_adjusted;
-
 
   fifoCount =  mpu.getFIFOCount();
   if (fifoCount >= 18) {
     double angle_adjusted_old = angle_adjusted;
     angle_adjusted = dmpGetPhi();
-    if (angle_adjusted > -40 && angle_adjusted < 40) {
-      // for now our target speed is zero
+
+    // check if we are in a recoverable position
+    if (angle_adjusted > -15 && angle_adjusted < 15) {
+      // for now our target speed **ALWAYS** is zero
       pid_setpoint_speed = 0;
       // we need to predict our current speed for the inputs we have
       int angular_velocity = (angle_adjusted - angle_adjusted_old) * 90;
@@ -158,10 +162,11 @@ void loop() {
       pid_controller_angle.Compute();
 
 #if DEBUG
-      Serial.print(angle_adjusted);
-      Serial.print(" : ");
-      Serial.print(pid_setpoint_angle);
-      Serial.print(" : ");
+      Serial.print("Angle PID: setpoint: ");
+      Serial.print(pid_setpoint_speed);
+      Serial.print(" input: ");
+      Serial.print(pid_input_speed);
+      Serial.print(" output (angle): ");
       Serial.println(pid_output_angle);  
 #endif
 
@@ -170,6 +175,15 @@ void loop() {
       pid_setpoint_angle = pid_output_angle;
       pid_input_angle = angle_adjusted;
       pid_controller_speed.Compute();
+
+#if DEBUG
+      Serial.print("Speed PID: setpoint: ");
+      Serial.print(pid_setpoint_angle);
+      Serial.print(" input: ");
+      Serial.print(pid_input_angle);
+      Serial.print(" output (speed): ");
+      Serial.println(pid_output_speed);  
+#endif
 
       // motors 2 is reversed
       motor_1_speed = pid_output_speed;
