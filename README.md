@@ -29,6 +29,14 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
   <img src="http://a.pololu-files.com/picture/0J3360.1200.png"/>
 </p>
 
+Current wiring of the A4988 and Arduino - motor wires ***not*** connected for image readability sake.
+* Orange and Yellow wires are step and dir (respectively)
+* All the MS are connected to Arduino 5v
+
+<p align="center">
+  <img src="http://i.imgur.com/FvkU5qE.jpgg" width="530"/>
+</p>
+
 ## Problems
   * **MPU6050 stops working as soon as motors are switched on**
     * Rewiring needed. Shorten every wire, specially the ones comming from the motors (they are way too long);
