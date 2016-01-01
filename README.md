@@ -37,7 +37,7 @@ Current wiring of the A4988 and Arduino - motor wires ***not*** connected for im
   <img src="http://i.imgur.com/FvkU5qE.jpgg" width="530"/>
 </p>
 
-## Problems
+## Current problems
   * **MPU6050 stops working as soon as motors are switched on**
     * Rewiring needed. Shorten every wire, specially the ones comming from the motors (they are way too long);
     * Move MPU away from all the wires - to a different breadboard if possible;
