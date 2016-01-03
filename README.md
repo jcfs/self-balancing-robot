@@ -43,4 +43,12 @@ Current wiring of the A4988 and Arduino - motor wires ***not*** connected for im
     * Move MPU away from all the wires - to a different breadboard if possible;
     * Arduino needs to be turned;
     * **Might** need decoupling capacitor.
+    * 
+
+## Current state of the robot
+Current state as of: 03/01/2016
+
+<p align="center">
+  <img src="http://i.imgur.com/8JurRKx.jpg" width="300"/>
+</p>
 
