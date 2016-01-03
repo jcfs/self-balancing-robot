@@ -15,15 +15,15 @@
 #define MOTOR_2_STEP 12
 #define MOTOR_2_DIR 13
 
-#define MAX_SPEED 7
+#define MAX_SPEED 500
 #define MAX_TARGET_ANGLE 12
 
 // ================================================================
 // ===                        Globals                           ===
 // ================================================================
-uint16_t motor_1_speed;
-uint16_t motor_2_speed;
-uint16_t counter_motor;
+int16_t motor_1_speed;
+int16_t motor_2_speed;
+int16_t counter_motor;
 
 double pid_setpoint_angle, pid_input_angle, pid_output_angle;
 double pid_setpoint_speed, pid_input_speed, pid_output_speed;
@@ -107,8 +107,8 @@ void step_motors() {
 
   if (counter_motor > speed) {
     counter_motor = 0;
-    motor_callback(MOTOR_1_STEP);
-    motor_callback(MOTOR_2_STEP);
+    step(MOTOR_1_STEP);
+    step(MOTOR_2_STEP);
   }
 }
 
@@ -131,7 +131,7 @@ void setup() {
   Timer1.attachInterrupt(step_motors);
 
   pid_controller_angle.SetMode(AUTOMATIC);
-  pid_controller_angle.SetOutputLimits(-MAX_TARGET_ANLGE, MAX_TARGET_ANGLE); 
+  pid_controller_angle.SetOutputLimits(-MAX_TARGET_ANGLE, MAX_TARGET_ANGLE); 
 
   pid_controller_speed.SetMode(AUTOMATIC);
   pid_controller_speed.SetOutputLimits(-MAX_SPEED, MAX_SPEED); 
@@ -143,6 +143,8 @@ void setup() {
 //  * Feed the current speed to the angle PID to obtain the desired angle to get to the input speed (zero for now)
 //  * Feed the current angle to the speed PID to obtain the desired speed to ge to the desired angle (obtained before)
 //  * Adjust motor speeds accordingly
+//
+int16_t control_output;
 void loop() {
   float angle_adjusted;
 
@@ -157,7 +159,9 @@ void loop() {
       pid_setpoint_speed = 0;
       // we need to predict our current speed for the inputs we have
       int angular_velocity = (angle_adjusted - angle_adjusted_old) * 90;
-      pid_input_speed = (motor_1_speed + motor_2_speed) / 2 - (pid_input_speed-angular_velocity);
+      Serial.println(angular_velocity);
+      Serial.println((motor_1_speed - motor_2_speed) / 2);
+      pid_input_speed = (motor_1_speed - motor_2_speed) / 2 - (pid_input_speed-angular_velocity);
 
       pid_controller_angle.Compute();
 
@@ -185,12 +189,20 @@ void loop() {
       Serial.println(pid_output_speed);  
 #endif
 
+      control_output += pid_output_speed;
+      control_output = constrain(control_output, -500, 500);
+
+#if DEBUG
+      Serial.print("motor speed: ");
+      Serial.println(control_output);
+#endif
       // motors 2 is reversed
-      motor_1_speed = pid_output_speed;
-      motor_2_speed = -pid_output_speed;
+      motor_1_speed = control_output;
+      motor_2_speed = -control_output;
 
       setMotorDirection(MOTOR_1_DIR, motor_1_speed);
       setMotorDirection(MOTOR_2_DIR, motor_2_speed);
+
 
     }
   }
