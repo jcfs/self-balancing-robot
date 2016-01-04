@@ -13,7 +13,7 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
 #### NEMA 17 wiring 
   [NEMA 17 motors](http://www.dx.com/pt/p/geeetech-1-8-degree-nema-14-35-byghw-stepper-motor-for-3d-printer-black-386069?Utm_rid=60225380&Utm_source=affiliate) with 4 wires scheme:
 <p align="center">
-  <img src="http://www.linengineering.com/_images/Wiring_4_lead_Wires.png"/>
+  <img src="http://i.imgur.com/DTpdCjG.jpg"/>
 </p>
 #### A4988 wiring with NEMA 17 bipolar motors (4 wires)
   Both motors are wired to their own A4988
@@ -43,4 +43,12 @@ Current wiring of the A4988 and Arduino - motor wires ***not*** connected for im
     * Move MPU away from all the wires - to a different breadboard if possible;
     * Arduino needs to be turned;
     * **Might** need decoupling capacitor.
+    * 
+
+## Current state of the robot
+Current state as of: 03/01/2016
+
+<p align="center">
+  <img src="http://i.imgur.com/8JurRKx.jpg" width="300"/>
+</p>
 
