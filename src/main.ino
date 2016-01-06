@@ -85,7 +85,7 @@ void setup_mpu(){
   delay(20000);
 
 #if TEST_MODE
-  Serial.println("Select operation mode [R (real) / T (test)]: ");
+  Serial.println("Select operation mode [0 (test), 1 (basic), 2(real)]: ");
   while(!Serial.available());
   running_mode = Serial.read();
 #endif
@@ -107,9 +107,9 @@ void step(int motor){
 void step_motors() {
   counter_motor++;
 
-  int speed = -0.01*abs(motor_1_speed) - 6;
+  int speed = -0.017*abs(motor_1_speed) + 9.5;
 
-  if (counter_motor > speed) {
+  if (counter_motor >= speed) {
     counter_motor = 0;
     step(MOTOR_1_STEP);
     step(MOTOR_2_STEP);
@@ -125,7 +125,7 @@ void setup() {
   pinMode(MOTOR_1_STEP,OUTPUT);
   pinMode(MOTOR_1_DIR,OUTPUT);
   pinMode(MOTOR_2_STEP,OUTPUT);
-  pinMode(MOTOR_1_DIR,OUTPUT);
+  pinMode(MOTOR_2_DIR,OUTPUT);
 
   // setup MPU6050
   setup_mpu();
@@ -139,7 +139,7 @@ void setup() {
 void loop() {
   int16_t motor_speed[2];
 
-  if (running_mode == 'r') {
+  if (running_mode == '2') {
     float angle_adjusted;
 
     fifoCount =  mpu.getFIFOCount();
@@ -157,7 +157,7 @@ void loop() {
     }
 
     get_pid_motor_speed(motor_speed, angle_adjusted, angle_adjusted_old, motor_1_speed, motor_2_speed);
-  } else if (running_mode == 't') {
+  } else if (running_mode == '1') {
     get_test_motor_speed(motor_speed);
   }
 

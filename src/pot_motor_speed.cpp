@@ -25,5 +25,5 @@ void  get_test_motor_speed(int16_t motor_speed[]) {
 #endif
 
   motor_speed[0] = val;
-  motor_speed[0] = -val;
+  motor_speed[1] = -val;
 }
