@@ -2,6 +2,7 @@
 
 #include "PID_v1.h"
 #include <stdint.h>
+#include "printf.h"
 #include <Arduino.h>
 
 double pid_setpoint_angle, pid_input_angle, pid_output_angle;
@@ -17,7 +18,17 @@ PID pid_controller_speed(&pid_input_angle, &pid_output_speed, &pid_setpoint_angl
 //  * Feed the current speed to the angle PID to obtain the desired angle to get to the input speed (zero for now
 //  * Feed the current angle to the speed PID to obtain the desired speed to ge to the desired angle (obtained be
 //  * Adjust motor speeds accordingly
-void get_pid_motor_speed(int16_t motor_speed[0], float angle, float angle_old, int16_t m1, int16_t m2) {
+
+void get_pid_motor_speed(int argc, ...) {
+  va_list valist;
+  va_start(valist, argc);
+
+  int16_t * motor_speed = va_arg(valist, int16_t *);
+  float angle = va_arg(valist, float);
+  float angle_old = va_arg(valist, float);
+  int16_t m1 = va_arg(valist, int16_t);
+  int16_t m2 = va_arg(valist, int16_t);
+  va_end(valist);
 
   // for now our target speed **ALWAYS** is zero
   pid_setpoint_speed = 0;
@@ -28,12 +39,7 @@ void get_pid_motor_speed(int16_t motor_speed[0], float angle, float angle_old, i
   pid_controller_angle.Compute();
 
 #if DEBUG
-  Serial.print("Angle PID: setpoint: ");
-  Serial.print(pid_setpoint_speed);
-  Serial.print(" input: ");
-  Serial.print(pid_input_speed);
-  Serial.print(" output (angle): ");
-  Serial.println(pid_output_angle);  
+  prints("Angle PID: setpoint: %f input: %f output (angle): %f\n", pid_setpoint_speed, pid_input_speed, pid_output_angle);
 #endif
 
   // PID given the target angle and the current angle
@@ -43,18 +49,10 @@ void get_pid_motor_speed(int16_t motor_speed[0], float angle, float angle_old, i
   pid_controller_speed.Compute();
 
 #if DEBUG
-  Serial.print("Speed PID: setpoint: ");
-  Serial.print(pid_setpoint_angle);
-  Serial.print(" input: ");
-  Serial.print(pid_input_angle);
-  Serial.print(" output (speed): ");
-  Serial.println(pid_output_speed);  
+  prints("Speed PID: setpoint: %f  input: %f output (speed): %f", pid_setpoint_angle, pid_input_angle, pid_output_speed);
+  prints("motor speed: %d\n", pid_output_speed);
 #endif
 
-#if DEBUG
-  Serial.print("motor speed: ");
-  Serial.println(pid_output_speed);
-#endif
   motor_speed[0] = (int16_t)pid_output_speed;
   motor_speed[1] = (int16_t)-pid_output_speed;
 }

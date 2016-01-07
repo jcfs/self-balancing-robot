@@ -1,1 +1,1 @@
-extern void get_test_motor_speed(int16_t motor_speed[]);
+extern void get_pot_motor_speed(int, ...);

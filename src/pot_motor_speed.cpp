@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <stdint.h>
+#include "printf.h"
 
 // ================================================================
 // ===                        CONSTANTS                         ===
@@ -11,13 +12,18 @@
 int32_t timer = millis();
 int32_t old_timer;
 
-void  get_test_motor_speed(int16_t motor_speed[]) {
+void get_pot_motor_speed(int argc, ...) {
+  va_list valist;
+  va_start(valist, argc);
+  int16_t * motor_speed = va_arg(valist, int16_t *);
+  va_end(valist);
+
   int val = map(analogRead(POTENT), 0, 1020, -500, 500);
 
 #if DEBUG
   if (timer-old_timer > 1000) {
     noInterrupts();
-    Serial.println(val);
+    prints("Potentiometer speed value: %d\n", val);
     interrupts();
     old_timer = timer;
   }

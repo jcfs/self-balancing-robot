@@ -5,6 +5,8 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 #include "TimerOne.h"
+#include "printf.h"
+#include <stdio.h>
 
 // Local includes
 #include "pot_motor_speed.h"
@@ -67,8 +69,7 @@ void setup_mpu(){
   mpu.setSleepEnabled(false);
   uint8_t devStatus = mpu.dmpInitialize();
 
-  Serial.print("Dev status...");
-  Serial.println(devStatus);
+  prints("Dev status... %d\n", devStatus);
 
   mpu.setXGyroOffset(220);
   mpu.setYGyroOffset(76);
@@ -81,14 +82,8 @@ void setup_mpu(){
 
   // Yaw stablelizing
 
-  Serial.println(F("Waiting 20s for calibration"));
+  prints("Waiting 20s for calibration\n");
   delay(20000);
-
-#if TEST_MODE
-  Serial.println("Select operation mode [0 (test), 1 (basic), 2(real)]: ");
-  while(!Serial.available());
-  running_mode = Serial.read();
-#endif
 
 }
 // ================================================================
@@ -116,6 +111,16 @@ void step_motors() {
   }
 }
 
+// ======================================================
+// Modules functions
+// ========================
+void (*function[24])(int, ...);
+uint16_t module_counter;
+
+void register_module(void (*func)(int,...)) {
+  function[module_counter++] = func;
+}
+
 // initialization functions
 void setup() {
   // init comms
@@ -133,35 +138,36 @@ void setup() {
   // Set timer one frequency and call back function for interruption
   Timer1.initialize(60); // 25Khz
   Timer1.attachInterrupt(step_motors);
+
+  register_module(get_pid_motor_speed);
+  register_module(get_pot_motor_speed);
+
+#if TEST_MODE
+  prints("Select operation mode [0-%d]\n", module_counter-1);
+  while(!Serial.available());
+  running_mode = Serial.read() - '0';
+  prints("Selected running mode: %d\n", running_mode);
+#endif
+
 }
+
+float angle_adjusted;
 
 // Main loop
 void loop() {
   int16_t motor_speed[2];
 
-  if (running_mode == '2') {
-    float angle_adjusted;
+  fifoCount =  mpu.getFIFOCount();
 
-    fifoCount =  mpu.getFIFOCount();
-    // hate continues but it is better for code readibility in this case
-    if (fifoCount < 18) {
-      goto apply_acceleration;
-    }
-
+  if (fifoCount > 18) {
     float angle_adjusted_old = angle_adjusted;
     angle_adjusted = dmpGetPhi();
-
     // if we are in an unrecoverable position
-    if (angle_adjusted < -15 || angle_adjusted > 15) {
-      goto apply_acceleration;
+    if (angle_adjusted > -15 && angle_adjusted < 15) {
+      (*function[running_mode])(5, motor_speed, angle_adjusted, angle_adjusted_old, motor_1_speed, motor_2_speed);
     }
 
-    get_pid_motor_speed(motor_speed, angle_adjusted, angle_adjusted_old, motor_1_speed, motor_2_speed);
-  } else if (running_mode == '1') {
-    get_test_motor_speed(motor_speed);
   }
-
-apply_acceleration:
 
   motor_1_speed = motor_speed[0];
   motor_2_speed = motor_speed[1];
