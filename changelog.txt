@@ -1,2 +1,4 @@
+Dev - 07/01/16
+* added basic balancing module without pid logic - test purposes
 * added printf support - sick of Serial.println shit
 * added multi-module support

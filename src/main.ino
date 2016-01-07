@@ -11,6 +11,7 @@
 // Local includes
 #include "pot_motor_speed.h"
 #include "pid_motor_speed.h"
+#include "basic_balance_motor_speed.h"
 
 // ================================================================
 // ===                        CONSTANTS                         ===
@@ -114,7 +115,8 @@ void step_motors() {
 // ======================================================
 // Modules functions
 // ========================
-void (*function[24])(int, ...);
+typedef void (*func_t)(int, ...);
+func_t function[24];
 uint16_t module_counter;
 
 void register_module(void (*func)(int,...)) {
@@ -141,13 +143,12 @@ void setup() {
 
   register_module(get_pid_motor_speed);
   register_module(get_pot_motor_speed);
+  register_module(get_basic_balance_motor_speed);
 
-#if TEST_MODE
-  prints("Select operation mode [0-%d]\n", module_counter-1);
+  prints("Select mode [0-%d]\n", module_counter-1);
   while(!Serial.available());
   running_mode = Serial.read() - '0';
-  prints("Selected running mode: %d\n", running_mode);
-#endif
+  prints("Selected module: %d\n", running_mode);
 
 }
 
