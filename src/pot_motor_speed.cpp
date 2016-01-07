@@ -12,11 +12,7 @@
 int32_t timer = millis();
 int32_t old_timer;
 
-void get_pot_motor_speed(int argc, ...) {
-  va_list valist;
-  va_start(valist, argc);
-  int16_t * motor_speed = va_arg(valist, int16_t *);
-  va_end(valist);
+void get_pot_motor_speed(int16_t * motor_speed, float angle, float angle_old, int16_t m1, int16_t m2) {
 
   int val = map(analogRead(POTENT), 0, 1020, -500, 500);
 

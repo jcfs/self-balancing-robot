@@ -1,3 +1,5 @@
+* remove va_args from module functions - was not working properly
+
 Dev - 07/01/16
 * added basic balancing module without pid logic - test purposes
 * added printf support - sick of Serial.println shit

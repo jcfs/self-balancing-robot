@@ -1,5 +1,4 @@
 #define DEBUG     1
-#define TEST_MODE 1
 
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -115,11 +114,10 @@ void step_motors() {
 // ======================================================
 // Modules functions
 // ========================
-typedef void (*func_t)(int, ...);
-func_t function[24];
+void (*function[24])(int16_t *, float, float, int16_t, int16_t);
 uint16_t module_counter;
 
-void register_module(void (*func)(int,...)) {
+void register_module(void (*func)(int16_t *, float, float, int16_t, int16_t)) {
   function[module_counter++] = func;
 }
 
@@ -165,13 +163,16 @@ void loop() {
     angle_adjusted = dmpGetPhi();
     // if we are in an unrecoverable position
     if (angle_adjusted > -15 && angle_adjusted < 15) {
-      (*function[running_mode])(5, motor_speed, angle_adjusted, angle_adjusted_old, motor_1_speed, motor_2_speed);
+      (*function[running_mode])(motor_speed, angle_adjusted, angle_adjusted_old, motor_1_speed, motor_2_speed);
+      motor_1_speed = motor_speed[0];
+      motor_2_speed = motor_speed[1];
     }
 
   }
 
-  motor_1_speed = motor_speed[0];
-  motor_2_speed = motor_speed[1];
+#if DEBUG
+  //prints("M1: %d M2: %d\n", motor_1_speed, motor_2_speed);
+#endif
 
   setMotorDirection(MOTOR_1_DIR, motor_1_speed);
   setMotorDirection(MOTOR_2_DIR, motor_2_speed);
