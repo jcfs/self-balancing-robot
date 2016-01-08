@@ -1,3 +1,7 @@
+Dev - 08/01/16
+* removed period calculation out of the callback function, was taking too long and stalling the program
+* changed the modules function to calculate acceleration instead of velocity
+* changed the callback function to account for 2 independent motor velocities
 * remove va_args from module functions - was not working properly
 
 Dev - 07/01/16

@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 void prints(char *fmt, ... ){
+  noInterrupts();
   int i = 0;
   char buf[128]; // resulting string limited to 128 chars
 
@@ -14,4 +15,5 @@ void prints(char *fmt, ... ){
   buf[strlen(buf)]='\r';
   va_end (args);
   Serial.print(buf);
+  interrupts();
 }
