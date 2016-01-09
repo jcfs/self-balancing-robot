@@ -1,4 +1,5 @@
 Dev - 09/01/16
+* changed scl to run at 400khz for faster mpu readings
 * changed speed period formula to (y=-0.017x+10.5)
 * changed timer1 implementation to use arduino constants instead of lib - runs 33khz
 * added prints with tag functionality

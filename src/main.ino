@@ -58,7 +58,12 @@ float dmpGetPhi() {
 // ================================================================
 void setup_mpu(){
   uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
-  
+
+  // run scl at 400khz
+  TWSR = 0;
+  TWBR = ((16000000L/400000L)-16)/2;
+  TWCR = 1<<TWEN;
+
   mpu.setClockSource(MPU6050_CLOCK_PLL_ZGYRO);
   mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
   mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
@@ -129,7 +134,8 @@ static void register_module(void (*func)(int16_t *, float, float, int16_t, int16
 //-----------------------------------------
 // Timer Setup
 // ----------------------------------------
-// timer setup, frequency in milliseconds as argument
+// timer setup, frequency in milliseconds as argument - we are using a divider of 8
+// resulting in a 2MHz on a 16MHz cpu
 // 40 - 25Khz
 void setup_timer(uint16_t freq) {
   TCCR1B &= ~(1<<WGM13);
@@ -168,9 +174,14 @@ void setup() {
   // setup timer
   setup_timer(60);
 
+  // pid setup
+  setup_pid();
   // register existing modules
   register_module(get_pid_motor_speed);
+
+  // register potetiometer module
   register_module(get_pot_motor_speed);
+  // register basic balance module
   register_module(get_basic_balance_motor_speed);
 
   prints("Modules loaded\n");
@@ -181,7 +192,6 @@ void setup() {
   prints("Selected module: %d\n", running_mode);
 
 }
-
 
 float angle_adjusted;
 
@@ -217,7 +227,7 @@ void loop() {
   }
 
 #if DEBUG
-  runEvery(1000) prints("M1: %d M2: %d angle: %d\n", motor_1_speed, motor_2_speed, (int)angle_adjusted);
+  runEvery(1000) prints(__func__, "M1: %d M2: %d angle: %d\n", motor_1_speed, motor_2_speed, (int)angle_adjusted);
 #endif
 
   setMotorDirection(MOTOR_1_DIR, motor_1_speed);
