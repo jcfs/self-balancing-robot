@@ -17,7 +17,7 @@ void get_pot_motor_speed(int16_t * motor_accel, float angle, float angle_old, in
 
 #if DEBUG
   runEvery(1000) {
-    prints("Potentiometer accel value: %d\n", val);
+    printsf(__func__, "Potentiometer accel value: %d\n", val);
     //Serial.println(val);
   }
 #endif
