@@ -1,3 +1,4 @@
+* added prints with tag functionality
 * added runEvery macro to simplify debug information
 * changed all the debug information to use the new macro
 
