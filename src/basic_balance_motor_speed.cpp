@@ -4,9 +4,7 @@
 #include <stdint.h>
 #include "printf.h"
 #include "basic_balance_motor_speed.h"
-
-static int32_t basic_timer = millis();
-static int32_t basic_old_timer;
+#include "utils.h"
 
 //Basic speed calculator based on the angle measured
 //if the angle is positive the speed is +max_speed
@@ -15,11 +13,7 @@ void get_basic_balance_motor_speed(int16_t * motor_accel, float angle, float ang
   int16_t speed = 15 * ((angle < 0) ? -1 : 1);
 
 #if DEBUG
-  if (basic_timer-basic_old_timer > 1000) {
-    prints("basic accel value: %d\n", speed);
-    basic_old_timer = basic_timer;
-  }
-  basic_timer = millis();
+  runEvery(1000) prints("basic accel value: %d\n", speed);
 #endif
 
   motor_accel[0] = speed;

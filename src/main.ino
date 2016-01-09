@@ -1,16 +1,17 @@
 #include <stdio.h>
 
 // Arduino libraries
-#include "I2Cdev.h"
-#include "MPU6050_6Axis_MotionApps20.h"
-#include "Wire.h"
-#include "TimerOne.h"
+#include <I2Cdev.h>
+#include <MPU6050_6Axis_MotionApps20.h>
+#include <Wire.h>
+#include <TimerOne.h>
 
 // Local includes
 #include "printf.h"
 #include "pot_motor_speed.h"
 #include "pid_motor_speed.h"
 #include "basic_balance_motor_speed.h"
+#include "utils.h"
 
 // ================================================================
 // ===                        CONSTANTS                         ===
@@ -22,9 +23,6 @@
 
 #define MOTOR_2_STEP 12
 #define MOTOR_2_DIR 13
-
-#define MAX_SPEED 500
-#define MAX_TARGET_ANGLE 12
 
 // ================================================================
 // ===                        Globals                           ===
@@ -86,7 +84,7 @@ void setup_mpu(){
   // Yaw stablelizing
 
   prints("Waiting 20s for calibration\n");
-  delay(1000);
+  delay(20000);
 
 }
 // ================================================================
@@ -158,6 +156,7 @@ void setup() {
   register_module(get_pot_motor_speed);
   register_module(get_basic_balance_motor_speed);
 
+  prints("Modules loaded\n");
   // load desired module
   prints("Select mode [0-%d]\n", module_counter-1);
   while(!Serial.available());
@@ -200,7 +199,7 @@ void loop() {
   }
 
 #if DEBUG
-  //  prints("M1: %d M2: %d\n", motor_1_speed, motor_2_speed);
+  runEvery(1000) prints("M1: %d M2: %d\n", motor_1_speed, motor_2_speed);
 #endif
 
   setMotorDirection(MOTOR_1_DIR, motor_1_speed);
