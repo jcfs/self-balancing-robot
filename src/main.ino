@@ -4,7 +4,6 @@
 #include <I2Cdev.h>
 #include <MPU6050_6Axis_MotionApps20.h>
 #include <Wire.h>
-#include <TimerOne.h>
 
 // Local includes
 #include "printf.h"
@@ -18,11 +17,11 @@
 // ================================================================
 #define DEBUG     1
 
-#define MOTOR_1_STEP 8
-#define MOTOR_1_DIR 9
+#define MOTOR_1_STEP  6 
+#define MOTOR_1_DIR   8
 
-#define MOTOR_2_STEP 12
-#define MOTOR_2_DIR 13
+#define MOTOR_2_STEP  12
+#define MOTOR_2_DIR   13
 
 // ================================================================
 // ===                        Globals                           ===
@@ -36,15 +35,11 @@ uint8_t running_mode;
 // MPU
 MPU6050 mpu;
 
-uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU
-uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
-uint16_t fifoCount;     // count of all bytes currently in FIFO
-uint8_t fifoBuffer[64]; // FIFO storage buffer
-
 // ================================================================
 // ===                      MPU FUNCTIONS                       ===
 // ================================================================
 float dmpGetPhi() {
+  uint8_t fifoBuffer[64]; // FIFO storage buffer
   VectorFloat gravity;
   Quaternion q;
   float ypr[3];
@@ -62,29 +57,30 @@ float dmpGetPhi() {
 // ===                      MPU SETUP                           ===
 // ================================================================
 void setup_mpu(){
+  uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
+  
   mpu.setClockSource(MPU6050_CLOCK_PLL_ZGYRO);
   mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
   mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
   mpu.setDLPFMode(MPU6050_DLPF_BW_20);  //10,20,42,98,188
-  mpu.setRate(9);   // 0=1khz 1=500hz, 2=333hz, 3=250hz 4=200hz
+  mpu.setRate(4);   // 0=1khz 1=500hz, 2=333hz, 3=250hz 4=200hz
   mpu.setSleepEnabled(false);
   uint8_t devStatus = mpu.dmpInitialize();
 
   prints("Dev status... %d\n", devStatus);
 
-  mpu.setXGyroOffset(220);
-  mpu.setYGyroOffset(76);
-  mpu.setZGyroOffset(-85);
-  mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
-
   mpu.setDMPEnabled(true);
-  mpuIntStatus = mpu.getIntStatus();
   packetSize = mpu.dmpGetFIFOPacketSize();
 
   // Yaw stablelizing
 
-  prints("Waiting 20s for calibration\n");
-  delay(20000);
+  prints("\n");
+  for(uint8_t i = 0; i < 20; i++) {
+    prints("Waiting %02d for calibration\r", 20-i);
+    delay(1000);
+  }
+  prints("\n");
+
 
 }
 // ================================================================
@@ -103,17 +99,15 @@ void step(int motor){
   digitalWrite(motor, LOW);
 }
 
-
-
 // interrupt function that is called every 25hkz (once every 40 microseconds)
-void step_motors() {
+ISR(TIMER1_COMPA_vect) {
   static int16_t counter_m1 = 0;
   static int16_t counter_m2 = 0;
 
-  if (!speed_period_m1 && !speed_period_m2) return;
-
   counter_m1++;
   counter_m2++;
+
+  if (!speed_period_m1 && !speed_period_m2) return;
 
   if (counter_m1 >= speed_period_m1) {
     counter_m1 = 0;
@@ -132,6 +126,31 @@ static uint16_t module_counter;
 static void register_module(void (*func)(int16_t *, float, float, int16_t, int16_t)) {
   function[module_counter++] = func;
 }
+//-----------------------------------------
+// Timer Setup
+// ----------------------------------------
+// timer setup, frequency in milliseconds as argument
+// 40 - 25Khz
+void setup_timer(uint16_t freq) {
+  TCCR1B &= ~(1<<WGM13);
+  TCCR1B |=  (1<<WGM12);
+  TCCR1A &= ~(1<<WGM11); 
+  TCCR1A &= ~(1<<WGM10);
+
+  // output mode = 00 (disconnected)
+  TCCR1A &= ~(3<<COM1A0); 
+  TCCR1A &= ~(3<<COM1B0); 
+
+  // Set the timer pre-scaler
+  // Generally we use a divider of 8, resulting in a 2MHz timer on 16MHz CPU
+  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10);
+  OCR1A = freq;   // 25Khz
+  TCNT1 = 0;
+
+  delay(3000);
+  TIMSK1 |= (1<<OCIE1A);  
+}
+
 
 // initialization functions
 void setup() {
@@ -146,10 +165,8 @@ void setup() {
 
   // setup MPU6050
   setup_mpu();
-
-  // Set timer one frequency and call back function for interruption
-  Timer1.initialize(40); // 25Khz
-  Timer1.attachInterrupt(step_motors);
+  // setup timer
+  setup_timer(60);
 
   // register existing modules
   register_module(get_pid_motor_speed);
@@ -165,17 +182,18 @@ void setup() {
 
 }
 
+
 float angle_adjusted;
 
 // Main loop
 void loop() {
-  fifoCount =  mpu.getFIFOCount();
+  uint16_t fifoCount =  mpu.getFIFOCount();
 
-  if (fifoCount > 18) {
+  if (fifoCount >= 18) {
     float angle_adjusted_old = angle_adjusted;
-    angle_adjusted = dmpGetPhi();
+    angle_adjusted = -dmpGetPhi();
     // if we are in an recoverable position
-    if (angle_adjusted > -15 && angle_adjusted < 15) {
+    if (angle_adjusted > -70 && angle_adjusted < 70) {
       int16_t motor_accel[2];
       // call the running module 
       (*function[running_mode])(motor_accel, angle_adjusted, angle_adjusted_old, motor_1_speed, motor_2_speed);
@@ -188,9 +206,9 @@ void loop() {
       motor_1_speed = constrain(motor_1_speed, -500, 500);
       motor_2_speed = constrain(motor_2_speed, -500, 500);
 
-      // calculate motor period by the function of f(x)=-0.017*x+9.5
-      speed_period_m1 = -0.017*abs(motor_1_speed) + 9.5;
-      speed_period_m2 = -0.017*abs(motor_2_speed) + 9.5;
+      // calculate motor period by the function of f(x)=-0.017*x+10.5
+      speed_period_m1 = -0.017*abs(motor_1_speed) + 10.5;
+      speed_period_m2 = -0.017*abs(motor_2_speed) + 10.5;
     } else {
       // if it is an angle we can't recover we gg and stop the motors
       motor_1_speed = motor_2_speed = 0;
@@ -199,7 +217,7 @@ void loop() {
   }
 
 #if DEBUG
-  runEvery(1000) prints("M1: %d M2: %d\n", motor_1_speed, motor_2_speed);
+  runEvery(1000) prints("M1: %d M2: %d angle: %d\n", motor_1_speed, motor_2_speed, (int)angle_adjusted);
 #endif
 
   setMotorDirection(MOTOR_1_DIR, motor_1_speed);
