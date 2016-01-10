@@ -71,21 +71,16 @@ void setup_mpu(){
   mpu.setRate(4);   // 0=1khz 1=500hz, 2=333hz, 3=250hz 4=200hz
   mpu.setSleepEnabled(false);
   uint8_t devStatus = mpu.dmpInitialize();
-
   prints("Dev status... %d\n", devStatus);
-
   mpu.setDMPEnabled(true);
-  packetSize = mpu.dmpGetFIFOPacketSize();
 
   // Yaw stablelizing
-
-  prints("\n");
   for(uint8_t i = 0; i < 20; i++) {
-    prints("Waiting %02d for calibration\r", 20-i);
+    printsf(__func__, "Waiting %02d for calibration\r", 20-i);
     delay(1000);
   }
   prints("\n");
-
+  printsf(__func__, "Calibration done.");
 
 }
 // ================================================================
@@ -187,8 +182,9 @@ void setup() {
   prints("Modules loaded\n");
   // load desired module
   prints("Select mode [0-%d]\n", module_counter-1);
-  while(!Serial.available());
-  running_mode = Serial.read() - '0';
+//  while(!Serial.available());
+//  running_mode = Serial.read() - '0';
+  running_mode = 2;
   prints("Selected module: %d\n", running_mode);
 
 }
@@ -227,7 +223,7 @@ void loop() {
   }
 
 #if DEBUG
-  runEvery(1000) prints(__func__, "M1: %d M2: %d angle: %d\n", motor_1_speed, motor_2_speed, (int)angle_adjusted);
+  runEvery(1000) printsf(__func__, "M1: %d M2: %d angle: %d\n", motor_1_speed, motor_2_speed, (int)angle_adjusted);
 #endif
 
   setMotorDirection(MOTOR_1_DIR, motor_1_speed);

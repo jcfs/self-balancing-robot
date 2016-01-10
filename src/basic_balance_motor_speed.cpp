@@ -13,7 +13,7 @@ void get_basic_balance_motor_speed(int16_t * motor_accel, float angle, float ang
   int16_t speed = 15 * ((angle < 0) ? -1 : 1);
 
 #if DEBUG
-  runEvery(1000) prints(__func__, "basic accel value: %d\n", speed);
+  runEvery(1000) printsf(__func__, "basic accel value: %d\n", speed);
 #endif
 
   motor_accel[0] = speed;
