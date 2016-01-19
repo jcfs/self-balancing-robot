@@ -173,7 +173,6 @@ void setup() {
   setup_pid();
   // register existing modules
   register_module(get_pid_motor_speed);
-
   // register potetiometer module
   register_module(get_pot_motor_speed);
   // register basic balance module

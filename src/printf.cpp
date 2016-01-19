@@ -14,7 +14,7 @@ void prints(char *fmt, ... ){
 }
 
 void printsf(const char * tag, char * fmt, ...) {
-  char buf[128] = {0};
+  char buf[128] = {0}; // resulting string limited to 128 chars
 
   uint8_t n = sprintf(buf, "[%s] ", tag);
 
