@@ -183,7 +183,7 @@ void setup() {
   prints("Select mode [0-%d]\n", module_counter-1);
 //  while(!Serial.available());
 //  running_mode = Serial.read() - '0';
-  running_mode = 2;
+  running_mode = 0;
   prints("Selected module: %d\n", running_mode);
 
 }
