@@ -1,0 +1,6 @@
+enable wires to disable drivers when speed is zero (power saving)
+switch on and off
+better stabilization
+second PID to incorporate speed - move backwards and forward
+power arduino with same battery
+nice little cover

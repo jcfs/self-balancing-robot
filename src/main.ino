@@ -198,7 +198,7 @@ void loop() {
     float angle_adjusted_old = angle_adjusted;
     angle_adjusted = -dmpGetPhi();
     // if we are in an recoverable position
-    if (angle_adjusted > -70 && angle_adjusted < 70) {
+    if (angle_adjusted > -35 && angle_adjusted < 35) {
       int16_t motor_accel[2];
       // call the running module 
       (*function[running_mode])(motor_accel, angle_adjusted, angle_adjusted_old, motor_1_speed, motor_2_speed);
@@ -212,8 +212,8 @@ void loop() {
       motor_2_speed = constrain(motor_2_speed, -500, 500);
 
       // calculate motor period by the function of f(x)=-0.017*x+10.5
-      speed_period_m1 = -0.017*abs(motor_1_speed) + 10.5;
-      speed_period_m2 = -0.017*abs(motor_2_speed) + 10.5;
+      speed_period_m1 = -0.033*abs(motor_1_speed) + 18.67;
+      speed_period_m2 = -0.033*abs(motor_2_speed) + 18.67;
     } else {
       // if it is an angle we can't recover we gg and stop the motors
       motor_1_speed = motor_2_speed = 0;
