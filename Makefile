@@ -1,7 +1,12 @@
 INO=ino
 
-all:
-	$(INO) build && sudo $(INO) upload 
+all: build upload serial
+
+build:
+	$(INO) build
+
+upload:
+	sudo $(INO) upload
 
 serial: 
 	sudo $(INO) serial -b 115200
