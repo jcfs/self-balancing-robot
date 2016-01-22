@@ -9,7 +9,7 @@
 double pid_output_accel, pid_setpoint_angle, pid_input_angle;
 
 // pid to obtain the desired speed given the current angle and the desired angle
-PID pid_controller_speed(&pid_input_angle, &pid_output_accel, &pid_setpoint_angle, 2, 0, 0.2, DIRECT);
+PID pid_controller_speed(&pid_input_angle, &pid_output_accel, &pid_setpoint_angle, 2, 0, 0.1, DIRECT);
 
 void setup_pid() {
   pid_controller_speed.SetMode(AUTOMATIC);
@@ -20,7 +20,7 @@ void setup_pid() {
 //  * Feed the current angle to the speed PID to obtain the desired acceleration to get to the desired angle
 //  * Adjust motor speeds accordingly
 void get_pid_motor_speed(int16_t * motor_accel, float angle, float angle_old, int16_t m1, int16_t m2) {
-  pid_setpoint_angle = 5; // for now we'll ignore the first pid computation
+  pid_setpoint_angle = 3; // for now we'll ignore the first pid computation
   pid_input_angle = angle;
   pid_controller_speed.Compute();
 

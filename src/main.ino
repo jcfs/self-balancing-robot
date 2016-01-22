@@ -23,6 +23,8 @@
 #define MOTOR_2_STEP  12
 #define MOTOR_2_DIR   13
 
+#define LED_PIN       3
+
 // ================================================================
 // ===                        Globals                           ===
 // ================================================================
@@ -72,11 +74,20 @@ void setup_mpu(){
   mpu.setSleepEnabled(false);
   uint8_t devStatus = mpu.dmpInitialize();
   prints("Dev status... %d\n", devStatus);
+
+  if (devStatus) {
+    digitalWrite(LED_PIN, HIGH);
+    while(1);
+  } 
+
   mpu.setDMPEnabled(true);
 
+  int led_status = 1;
   // Yaw stablelizing
   for(uint8_t i = 0; i < 20; i++) {
     printsf(__func__, "Waiting %02d for calibration\r", 20-i);
+    digitalWrite(LED_PIN, led_status);
+    led_status = !led_status;
     delay(1000);
   }
   prints("\n");
@@ -163,6 +174,7 @@ void setup() {
   pinMode(MOTOR_1_DIR,OUTPUT);
   pinMode(MOTOR_2_STEP,OUTPUT);
   pinMode(MOTOR_2_DIR,OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
 
   // setup MPU6050
   setup_mpu();
