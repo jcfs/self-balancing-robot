@@ -224,8 +224,8 @@ void loop() {
       motor_2_speed = constrain(motor_2_speed, -500, 500);
 
       // calculate motor period by the function of f(x)=-0.017*x+10.5
-      speed_period_m1 = -0.033*abs(motor_1_speed) + 18.67;
-      speed_period_m2 = -0.033*abs(motor_2_speed) + 18.67;
+      speed_period_m1 = -0.056*abs(motor_1_speed) + 30;
+      speed_period_m2 = -0.056*abs(motor_2_speed) + 30;
     } else {
       // if it is an angle we can't recover we gg and stop the motors
       motor_1_speed = motor_2_speed = 0;
