@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 
 #include <Arduino.h>
 #include <stdint.h>
@@ -18,8 +18,6 @@ void setup_pid() {
   pid_controller_speed.SetSampleTime(10); // 10ms
 }
 
-
-
 //  * Get the current angle from the MPU
 //  * Feed the current angle to the speed PID to obtain the desired acceleration to get to the desired angle
 //  * Adjust motor speeds accordingly
@@ -29,12 +27,13 @@ void get_pid_motor_speed(int16_t * motor_accel, float angle, float angle_old, in
   pid_input_angle = angle;
   pid_controller_speed.Compute();
 
+  motor_accel[0] = -(int16_t)pid_output_accel;
+  motor_accel[1] = -(int16_t)pid_output_accel;
+
 #if DEBUG
-  runEvery(1000) {
-    printsf(__func__, "Speed PID: setpoint: %f  input: %f output (acceleration): %f", pid_setpoint_angle, pid_input_angle, pid_output_accel);
+  runEvery(500) {
+    printsf(__func__, "Speed PID: setpoint: %d  input: %d output (acceleration): %d\n", (int16_t)pid_setpoint_angle, (int16_t)pid_input_angle, (int16_t)pid_output_accel);
   }
 #endif
 
-  motor_accel[0] = -(int16_t)pid_output_accel;
-  motor_accel[1] = -(int16_t)pid_output_accel;
 }

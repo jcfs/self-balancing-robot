@@ -100,7 +100,7 @@ void setup_mpu(){
 
 // sets the motor direction pin accordingly to the motor speed
 void setMotorDirection(int pin, int motorSpeed) {
-  digitalWrite(pin, motorSpeed > 0 ? HIGH : LOW);
+
 }
 
 // pulse the motor one step
@@ -120,6 +120,9 @@ ISR(TIMER1_COMPA_vect) {
 
   if (!speed_period_m1 && !speed_period_m2) return;
 
+  digitalWrite(MOTOR_1_DIR, motor_1_speed > 0 ? HIGH : LOW);
+  digitalWrite(MOTOR_2_DIR, motor_2_speed >= 0 ? HIGH : LOW);
+  
   if (counter_m1 >= speed_period_m1) {
     counter_m1 = 0;
     step(MOTOR_1_STEP);
@@ -192,9 +195,6 @@ void setup() {
 
   prints("Modules loaded\n");
   // load desired module
-  prints("Select mode [0-%d]\n", module_counter-1);
-//  while(!Serial.available());
-//  running_mode = Serial.read() - '0';
   running_mode = 0;
   prints("Selected module: %d\n", running_mode);
 
@@ -219,17 +219,30 @@ void loop() {
       motor_1_speed += motor_accel[0];
       motor_2_speed -= motor_accel[1];
 
+      //apply steering
+/*
+      bool should = millis() - stimer > 5000 && millis() - stimer < 5200;
+
+      if (should) {
+        motor_1_speed += 15;
+        motor_2_speed -= 15;
+      } else {
+        motor_2_speed = -motor_1_speed;
+      }
+*/
+
       //constrain motor speed
       motor_1_speed = constrain(motor_1_speed, -500, 500);
       motor_2_speed = constrain(motor_2_speed, -500, 500);
 
       // calculate motor period by the function of f(x)=-0.017*x+10.5
-      speed_period_m1 = -0.054*abs(motor_1_speed) + 30;
-      speed_period_m2 = -0.054*abs(motor_2_speed) + 30;
-    } else {
+      speed_period_m1 = -0.194*abs(motor_1_speed) + 100;
+      speed_period_m2 = -0.194*abs(motor_2_speed) + 100;
+    } else if (angle_adjusted == angle_adjusted) {
       // if it is an angle we can't recover we gg and stop the motors
       motor_1_speed = motor_2_speed = 0;
       speed_period_m1 = speed_period_m2 = 0;
+      Serial.println(angle_adjusted);
     }
   }
 
@@ -237,6 +250,4 @@ void loop() {
   runEvery(1000) printsf(__func__, "M1: %d M2: %d angle: %d\n", motor_1_speed, motor_2_speed, (int)angle_adjusted);
 #endif
 
-  setMotorDirection(MOTOR_1_DIR, motor_1_speed);
-  setMotorDirection(MOTOR_2_DIR, motor_2_speed);
 }

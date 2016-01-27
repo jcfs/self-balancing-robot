@@ -1,11 +1,11 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define KP  3
+#define KP  15
 #define KI  0
-#define KD  0.2
+#define KD  2
 
-#define MAX_ACCEL 50
+#define MAX_ACCEL 30
 
 #define P1_X 500
 #define P1_Y 2
