@@ -70,7 +70,9 @@ bool PID::Compute()
     *myOutput = output;
 
     /*Remember some variables for next time*/
+    lastT2input = lastInput;
     lastInput = input;
+
     lastTime = now;
     return true;
   }
@@ -94,6 +96,7 @@ void PID::SetTunings(double Kp, double Ki, double Kd)
   ki = Ki * SampleTimeInSec;
   kd = Kd / SampleTimeInSec;
 
+  ITerm = 0;
   if(controllerDirection ==REVERSE)
   {
     kp = (0 - kp);

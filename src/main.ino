@@ -15,7 +15,7 @@
 // ================================================================
 // ===                        CONSTANTS                         ===
 // ================================================================
-#define DEBUG     1
+#define DEBUG     0
 
 #define MOTOR_1_STEP  6 
 #define MOTOR_1_DIR   8
@@ -208,7 +208,7 @@ void loop() {
 
   if (fifoCount >= 18) {
     float angle_adjusted_old = angle_adjusted;
-    angle_adjusted = -dmpGetPhi();
+    angle_adjusted = dmpGetPhi();
     // if we are in an recoverable position
     if (angle_adjusted > -35 && angle_adjusted < 35) {
       int16_t motor_accel[2];
@@ -236,13 +236,12 @@ void loop() {
       motor_2_speed = constrain(motor_2_speed, -500, 500);
 
       // calculate motor period by the function of f(x)=-0.017*x+10.5
-      speed_period_m1 = -0.194*abs(motor_1_speed) + 100;
-      speed_period_m2 = -0.194*abs(motor_2_speed) + 100;
+      speed_period_m1 = -0.054*abs(motor_1_speed) + 30;
+      speed_period_m2 = -0.054*abs(motor_2_speed) + 30;
     } else if (angle_adjusted == angle_adjusted) {
       // if it is an angle we can't recover we gg and stop the motors
       motor_1_speed = motor_2_speed = 0;
       speed_period_m1 = speed_period_m2 = 0;
-      Serial.println(angle_adjusted);
     }
   }
 
