@@ -39,6 +39,8 @@ Current wiring of the A4988 and Arduino - motor wires ***not*** connected for im
 
 ## Current state of the robot
 Current state as of: 22/01/2016 - youtube video [here](https://www.youtube.com/watch?v=yMFi8TMg03o)
+Current state as of: 03/02/2016 - youtube video [here](https://www.youtube.com/watch?v=o339cVn5oNA)
+
 
 <p align="center">
   <img src="http://i.imgur.com/UHWR2By.jpg" width="300"/>
