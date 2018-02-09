@@ -15,6 +15,7 @@ Sketch for a self balancing arduino robot using an [Arduino Uno](http://www.dx.c
 <p align="center">
   <img src="http://i.imgur.com/DTpdCjG.jpg"/>
 </p>
+
 #### A4988 wiring with NEMA 17 bipolar motors (4 wires)
   Both motors are wired to their own A4988
   * VMOT/GND external power supply - GND can be shared with the rest of the circuit;
